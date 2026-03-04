@@ -20,6 +20,8 @@ const vehicleSchema = new mongoose.Schema(
       enum: ['idle', 'moving', 'reached'],
       default: 'idle'
     },
+    rerouteCount: { type: Number, default: 0 },
+    totalDelayMinutes: { type: Number, default: 0 },
     speedKmh: { type: Number, default: 35 },
     lastUpdated: { type: Date, default: Date.now }
   },

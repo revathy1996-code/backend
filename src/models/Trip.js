@@ -17,6 +17,17 @@ const routePointSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const rerouteEventSchema = new mongoose.Schema(
+  {
+    timestamp: { type: Date, required: true },
+    reason: { type: String, required: true },
+    blockedAt: { type: locationSchema, required: true },
+    oldEtaMinutes: { type: Number, required: true },
+    newEtaMinutes: { type: Number, required: true }
+  },
+  { _id: false }
+);
+
 const tripSchema = new mongoose.Schema(
   {
     vehicleId: { type: String, required: true, index: true },
@@ -30,6 +41,10 @@ const tripSchema = new mongoose.Schema(
     startTime: { type: Date, default: Date.now },
     endTime: { type: Date },
     distanceKm: { type: Number, default: 0 },
+    plannedDistanceKm: { type: Number, default: 0 },
+    delayMinutes: { type: Number, default: 0 },
+    rerouteCount: { type: Number, default: 0 },
+    rerouteEvents: { type: [rerouteEventSchema], default: [] },
     routePoints: { type: [routePointSchema], default: [] }
   },
   { timestamps: true }

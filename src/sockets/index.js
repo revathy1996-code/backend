@@ -1,4 +1,9 @@
-const { getSimulationStatus, getVehiclesSnapshot } = require('../services/simulationService');
+const {
+  getSimulationStatus,
+  getVehiclesSnapshot,
+  listIncidents,
+  getRecentReroutes
+} = require('../services/simulationService');
 
 function registerSocketHandlers(io) {
   io.on('connection', async (socket) => {
@@ -6,6 +11,9 @@ function registerSocketHandlers(io) {
     try {
       const vehicles = await getVehiclesSnapshot();
       socket.emit('simulation:update', vehicles);
+      const incidents = await listIncidents();
+      socket.emit('incidents:update', incidents);
+      socket.emit('simulation:reroute:history', getRecentReroutes());
     } catch (error) {
       console.error('[Socket] failed to emit vehicles snapshot on connect', error);
     }
