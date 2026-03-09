@@ -14,6 +14,7 @@ const incidentSchema = new mongoose.Schema(
     type: { type: String, enum: ['block', 'accident', 'congestion'], default: 'block' },
     severity: { type: Number, min: 1, max: 5, default: 3 },
     reason: { type: String, default: 'Road block detected' },
+    vehicleId: { type: String, index: true },
     location: { type: locationSchema, required: true },
     radiusMeters: { type: Number, default: 220 },
     status: { type: String, enum: ['active', 'resolved'], default: 'active' },

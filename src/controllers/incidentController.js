@@ -2,6 +2,7 @@ const {
   listIncidents,
   createManualIncident,
   createIncidentNearVehicle,
+  createIncidentForTransitVehicles,
   resolveIncident,
   getRecentReroutes,
   getIncidentResolvePreview,
@@ -29,12 +30,36 @@ async function create(req, res, next) {
 async function injectNearVehicle(req, res, next) {
   try {
     const { vehicleId } = req.params;
-    const incident = await createIncidentNearVehicle(vehicleId);
-    if (!incident) {
+    const result = await createIncidentNearVehicle(vehicleId);
+    if (!result?.incident) {
+      if (result?.error === 'not_in_transit') {
+        res.status(400).json({ message: 'Vehicle is not currently between source and destination' });
+        return;
+      }
       res.status(404).json({ message: 'Vehicle not found' });
       return;
     }
-    res.status(201).json({ data: incident });
+    res.status(201).json({ data: result.incident });
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function injectForTransitVehicles(_req, res, next) {
+  try {
+    const result = await createIncidentForTransitVehicles();
+    if (!result?.incidents?.length) {
+      if (result?.error === 'no_eligible_vehicles') {
+        res.status(400).json({ message: 'No vehicles are currently between source and destination' });
+        return;
+      }
+      res.status(400).json({ message: 'Unable to inject road block for active vehicles' });
+      return;
+    }
+    res.status(201).json({
+      data: result.incidents,
+      affectedVehicleIds: result.affectedVehicleIds
+    });
   } catch (error) {
     next(error);
   }
@@ -101,6 +126,7 @@ module.exports = {
   list,
   create,
   injectNearVehicle,
+  injectForTransitVehicles,
   resolvePreview,
   applyRoute,
   resolve,
